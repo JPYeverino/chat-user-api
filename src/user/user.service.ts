@@ -25,18 +25,20 @@ export class UserService extends BaseService<User> {
     }
 
     async register(registerVm: RegisterVm) {
-        const AVATAR_URL = 'https://api.adorable.io/avatars/285';
+        const AVATAR_URL = 'https://api.adorable.io/avatars/200';
         const { username, password, firstName, lastName } = registerVm;
 
         const newUser = new this._model();
         newUser.username = username;
-        newUser.firstName = firstName;
-        newUser.lastName = lastName;
+        // newUser.language = firstName;
+        // newUser.lastName = lastName;
         newUser.avatarUrl = `${AVATAR_URL}/${newUser.id}`;
+        newUser.language = `en`;
 
         const salt = await genSalt(10);
         newUser.password = await hash(password, salt);
 
+        //TODO: post user on noti-api
         try {
             const result = await this.create(newUser);
             return result.toJSON() as User;
@@ -81,6 +83,20 @@ export class UserService extends BaseService<User> {
         
         try {
             const result = await this.findById(decoded['id']);
+            return result;
+            
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    async getUsersList(searchInput: string) {
+        
+        try {
+            
+            const search = searchInput['search'].toString();
+            const result = await this.findAll({username: new RegExp(search, "gi")});
+            
             return result;
             
         } catch (e) {

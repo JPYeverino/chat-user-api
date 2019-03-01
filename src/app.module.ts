@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer, HttpModule } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -12,7 +12,7 @@ import { UserController } from './user/user.controller';
 
 
 @Module({
-  imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString), UserModule],
+  imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString), UserModule, ],
   controllers: [AppController],
   providers: [AppService],
 })

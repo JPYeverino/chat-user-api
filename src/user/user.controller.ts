@@ -1,5 +1,5 @@
-import { Controller, Post, HttpStatus, Body, HttpException, Get, Response, UseGuards, Req, Res } from '@nestjs/common';
-import { ApiUseTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Post, HttpStatus, Body, HttpException, Get, Response, UseGuards, Req, Res, Query } from '@nestjs/common';
+import { ApiUseTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiImplicitQuery } from '@nestjs/swagger';
 import { User } from './models/user.model';
 import { UserService } from './user.service';
 import { UserVm } from './models/view-models/user-vm.model';
@@ -9,17 +9,22 @@ import { RegisterVm } from './models/view-models/register-vm.model';
 import { LoginResponseVm } from './models/view-models/login-response-vm.model';
 import { LoginVm } from './models/view-models/login-vm.model';
 import { AuthGuard } from '@nestjs/passport';
+import { NotiApiService } from 'src/shared/noti-api/noti-api.service';
+import { map } from 'rxjs/operators';
 
 @Controller()
 @ApiUseTags(User.modelName)
 export class UserController {
-    constructor(private readonly _userService: UserService) { }
+    constructor(
+        private readonly _userService: UserService,
+        private readonly _notiService: NotiApiService
+    ) { }
 
     @Post('register')
     @ApiResponse({ status: HttpStatus.CREATED, type: UserVm})
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: apiException})
     @ApiOperation(GetOperationId(User.modelName, 'register'))
-    async register(@Body() registerVm: RegisterVm): Promise<UserVm> {
+    async register(@Body() registerVm: RegisterVm): Promise<any> {
         const {username, password} = registerVm;
 
         if(!username) {
@@ -42,7 +47,8 @@ export class UserController {
         }
 
         const newUser = await this._userService.register(registerVm);
-        return this._userService.map<UserVm>(newUser);
+        console.log(await this._userService.map<UserVm>(new User));
+        return await this._notiService.createNotiApiUser(newUser);
     }
 
     @Post('login')
@@ -64,27 +70,47 @@ export class UserController {
     }
 
     @Get('auth') // Get a user ID at a response from another service.
-    @ApiBearerAuth()
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     @ApiResponse({ status: HttpStatus.OK, type: LoginResponseVm})
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: apiException})
     @ApiOperation(GetOperationId(User.modelName, 'auth'))
     async auth(@Req() req) {
-        return this._userService.getResFromCookie(req.cookies['SESSIONID']);
+        try {
+            return this._userService.getResFromCookie(req.cookies['SESSIONID']);
+        } catch (e) {
+            throw new HttpException('unauthorized', HttpStatus.BAD_REQUEST);
+        }
+        
     }
 
     @Get('/profile')
-    @ApiBearerAuth()
     @UseGuards(AuthGuard('jwt'))
     @ApiOkResponse({ type: UserVm })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: apiException})
     @ApiOperation(GetOperationId(User.modelName, 'getUser'))
     async getUser(@Req() req) {
-        const jwt = req.cookies['SESSIONID'];
 
+        const jwt = req.cookies['SESSIONID'];
         try {
             const actualUser = await this._userService.getUser(jwt);
             return this._userService.map<UserVm>(actualUser.toJSON());
+        } catch (e) {
+            throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);            
+        }
+    }
+
+    @Get('users-list')
+    @UseGuards(AuthGuard('jwt'))
+    @ApiOkResponse({ type: UserVm, isArray: true})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: apiException})
+    @ApiOperation(GetOperationId(User.modelName, 'usersList'))
+    @ApiImplicitQuery({name: 'search', type: String, required: false, })
+    async getFilteredUsers(@Req() req, @Query() searchInput: string) {
+        try {
+
+            const usersList = await this._userService.getUsersList(searchInput);
+            console.log(usersList);
+            return await this._userService.map<UserVm[]>(usersList.map(user => user.toJSON()));
         } catch (e) {
             throw new HttpException(e, HttpStatus.INTERNAL_SERVER_ERROR);            
         }
