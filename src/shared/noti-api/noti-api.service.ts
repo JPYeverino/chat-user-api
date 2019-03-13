@@ -13,7 +13,7 @@ export class NotiApiService {
         const { _id, username } = user;
         const notiApiUrl = ConfigurationService.noti_api_url;
 
-        return this.http.post(notiApiUrl + '/save-user', user)
+        return this.http.post(notiApiUrl + '/noti-user/save-user', user)
             .pipe(
                 map(response => response.data)
             );

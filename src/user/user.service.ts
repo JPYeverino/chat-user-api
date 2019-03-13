@@ -25,20 +25,16 @@ export class UserService extends BaseService<User> {
     }
 
     async register(registerVm: RegisterVm) {
-        const AVATAR_URL = 'https://api.adorable.io/avatars/200';
+        const AVATAR_URL = 'https://api.adorable.io/avatars/125';
         const { username, password, firstName, lastName } = registerVm;
 
         const newUser = new this._model();
         newUser.username = username;
-        // newUser.language = firstName;
-        // newUser.lastName = lastName;
         newUser.avatarUrl = `${AVATAR_URL}/${newUser.id}`;
         newUser.language = `en`;
 
         const salt = await genSalt(10);
         newUser.password = await hash(password, salt);
-
-        //TODO: post user on noti-api
         try {
             const result = await this.create(newUser);
             return result.toJSON() as User;
