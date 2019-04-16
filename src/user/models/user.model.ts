@@ -1,4 +1,4 @@
-import { BaseModel, schemaOptions } from "src/shared/base.model";
+import { BaseModel, schemaOptions } from "../../shared/base.model";
 import { prop, ModelType } from "typegoose";
 
 export class User extends BaseModel<User> {

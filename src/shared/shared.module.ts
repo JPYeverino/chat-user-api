@@ -3,7 +3,7 @@ import { ConfigurationService } from './configuration/configuration.service';
 import { MapperService } from './mapper/mapper.service';
 import { AuthService } from './auth/auth.service';
 import { JwtStrategyService } from './auth/strategies/jwt-strategy.service';
-import { UserModule } from 'src/user/user.module';
+import { UserModule } from '../user/user.module';
 import { NotiApiService } from './noti-api/noti-api.service';
 
 @Global()

@@ -2,14 +2,14 @@ import { Injectable, HttpException, HttpStatus, forwardRef, Inject } from '@nest
 import { User } from './models/user.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { ModelType } from 'typegoose';
-import { MapperService } from 'src/shared/mapper/mapper.service';
-import { BaseService } from 'src/shared/base.service';
+import { MapperService } from '../shared/mapper/mapper.service';
+import { BaseService } from '../shared/base.service';
 import { RegisterVm } from './models/view-models/register-vm.model';
 import { genSalt, hash, compare } from 'bcryptjs';
-import { AuthService } from 'src/shared/auth/auth.service';
+import { AuthService } from '../shared/auth/auth.service';
 import { LoginVm } from './models/view-models/login-vm.model';
 import { LoginResponseVm } from './models/view-models/login-response-vm.model';
-import { JwtPayload } from 'src/shared/auth/jwt-payload';
+import { JwtPayload } from '../shared/auth/jwt-payload';
 import { UserVm } from './models/view-models/user-vm.model';
 
 @Injectable()

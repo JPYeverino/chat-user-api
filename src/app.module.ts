@@ -8,11 +8,22 @@ import { Configuration } from './shared/configuration/configuration.enum';
 import { UserModule } from './user/user.module';
 import { CookieParserMiddleware } from '@nest-middlewares/cookie-parser';
 import { UserController } from './user/user.controller';
+import { async } from 'rxjs/internal/scheduler/async';
 
 
 
 @Module({
-  imports: [SharedModule, MongooseModule.forRoot(ConfigurationService.connectionString), UserModule, ],
+  imports: [SharedModule, MongooseModule.forRootAsync({
+    imports: [SharedModule],
+    useFactory: async(_configService: ConfigurationService) => ({
+      uri: _configService.get(Configuration.MONGO_URI),
+      retryDelay: 500,
+      retryAttempts: 3,
+      useNewUrlParser: true,
+      useCreateIndex: true
+    }),
+    inject: [ConfigurationService]
+  }), UserModule, ],
   controllers: [AppController],
   providers: [AppService],
 })

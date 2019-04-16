@@ -3,13 +3,13 @@ import { ApiUseTags, ApiResponse, ApiOperation, ApiBearerAuth, ApiOkResponse, Ap
 import { User } from './models/user.model';
 import { UserService } from './user.service';
 import { UserVm } from './models/view-models/user-vm.model';
-import { apiException } from 'src/shared/api-exception.model';
-import { GetOperationId } from 'src/shared/utilities/get-operation-id';
+import { apiException } from '../shared/api-exception.model';
+import { GetOperationId } from '../shared/utilities/get-operation-id';
 import { RegisterVm } from './models/view-models/register-vm.model';
 import { LoginResponseVm } from './models/view-models/login-response-vm.model';
 import { LoginVm } from './models/view-models/login-vm.model';
 import { AuthGuard } from '@nestjs/passport';
-import { NotiApiService } from 'src/shared/noti-api/noti-api.service';
+import { NotiApiService } from '../shared/noti-api/noti-api.service';
 import { map } from 'rxjs/operators';
 
 @Controller()
@@ -56,6 +56,7 @@ export class UserController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, type: apiException })
     @ApiOperation(GetOperationId(User.modelName, 'login'))
     async login(@Body() loginVm: LoginVm, @Res() resp): Promise<any> {
+        console.log("test")
         const fields = Object.keys(loginVm);
         fields.forEach(field => {
             if (!loginVm[field]) {
