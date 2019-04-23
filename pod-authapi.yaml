@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: auth-api
+spec:
+  selector:
+    app: chatapp
+    tier: backend
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: http
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: auth-api
+spec:
+  selector:
+    matchLabels:
+      app: chatapp
+      tier: backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: chatapp
+        tier: backend
+    spec:
+      containers:
+      - name: auth-api
+        image: jpyeverino/user-api:latest
+        ports:
+        - containerPort: 3000
+          name: http
+        # env:
+          # - name: MONGO_URI
+          #   value: mongodb://mongoauth:27017/user-api
+          # - name: NODE_ENV
+          #   value: prod
+          # - name: PORT
+          #   value: "3000"
+          # - name: JWT_KEY
+          #   value: MySuperPassword!2345
+          # - name: NOTI_API
+          #   value: noti-api:3001/noti
+          
+  
